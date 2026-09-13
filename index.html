@@ -20,7 +20,7 @@ body{font-family:'Pretendard Variable',Pretendard,-apple-system,'Apple SD Gothic
   .app{height:92dvh;border-radius:36px;box-shadow:0 24px 70px rgba(0,0,0,.28);border:1px solid #c9d2d6}
 }
 .header{padding:14px 18px 10px;background:var(--bg);display:flex;align-items:center;gap:10px;z-index:5}
-.logo-badge{width:42px;height:42px;flex:none;object-fit:contain;border-radius:10px;background:#fff}
+.logo-badge{width:42px;height:42px;flex:none;border-radius:10px;background:#fff;padding:3px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
 .logo-txt{line-height:1.15}
 .logo-txt b{font-size:21px;color:var(--ink);letter-spacing:-.5px}
 .logo-txt span{display:block;font-size:10.5px;color:var(--teal);font-weight:600}
@@ -171,7 +171,14 @@ input[type=range]{width:100%;accent-color:var(--teal)}
 <body>
 <div class="app">
   <div class="header">
-    <img src="logo.png" alt="공시리 로고" class="logo-badge">
+    <svg class="logo-badge" viewBox="0 0 100 100" role="img" aria-label="공시리 로고" fill="none" stroke="#3d6b5a" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M14 90 V47 A36 36 0 0 1 86 47 V90 Z" stroke-width="9"/>
+      <path d="M39 63 a2 2 0 0 1 4 0 a4 4 0 0 1 -8 0 a6 6 0 0 1 12 0 a8 8 0 0 1 -16 0 a10 10 0 0 1 20 0 a12 12 0 0 1 -12 12" stroke-width="5.5"/>
+      <path d="M26 84 H58 C64 84 67 79 69 72" stroke-width="5.5"/>
+      <path d="M68 72 L70 59 M72 73 L78 63" stroke-width="3"/>
+      <circle cx="70" cy="57" r="3" fill="#3d6b5a" stroke="none"/>
+      <circle cx="79" cy="61" r="3" fill="#3d6b5a" stroke="none"/>
+    </svg>
     <div class="logo-txt">
       <b>공시리</b>
       <span>공실을 창업가에 잇는 플랫폼</span>
