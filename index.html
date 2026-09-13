@@ -20,7 +20,7 @@ body{font-family:'Pretendard Variable',Pretendard,-apple-system,'Apple SD Gothic
   .app{height:92dvh;border-radius:36px;box-shadow:0 24px 70px rgba(0,0,0,.28);border:1px solid #c9d2d6}
 }
 .header{padding:14px 18px 10px;background:var(--bg);display:flex;align-items:center;gap:10px;z-index:5}
-.logo-badge{width:42px;height:42px;flex:none}
+.logo-badge{width:42px;height:42px;flex:none;object-fit:contain;border-radius:10px;background:#fff}
 .logo-txt{line-height:1.15}
 .logo-txt b{font-size:21px;color:var(--ink);letter-spacing:-.5px}
 .logo-txt span{display:block;font-size:10.5px;color:var(--teal);font-weight:600}
@@ -130,6 +130,7 @@ body{font-family:'Pretendard Variable',Pretendard,-apple-system,'Apple SD Gothic
 .field .opts{display:flex;flex-wrap:wrap;gap:8px}
 .opt{border:1.5px solid var(--line);background:#fff;border-radius:12px;padding:9px 13px;font-size:12.5px;font-weight:600;cursor:pointer;color:#4a5458}
 .opt.on{border-color:var(--teal);background:var(--mint);color:var(--teal);font-weight:800}
+.opt.custom{border-style:dashed}
 input[type=range]{width:100%;accent-color:var(--teal)}
 .range-val{font-size:12.5px;color:var(--teal);font-weight:800;margin-top:4px}
 .big-btn{width:100%;background:var(--teal);color:#fff;border:none;border-radius:15px;padding:16px;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit;margin-top:4px}
@@ -157,18 +158,20 @@ input[type=range]{width:100%;accent-color:var(--teal)}
 .modal p{font-size:13px;color:#5b646a;line-height:1.6}
 .modal .big-btn{margin-top:16px}
 .footnote{font-size:10.5px;color:#9aa3a8;text-align:center;margin:18px 0 4px;line-height:1.5}
+.prompt-box textarea{width:100%;border:1.5px solid var(--line);border-radius:12px;padding:11px 12px;font-family:inherit;font-size:13px;resize:none;line-height:1.5;background:#fff}
+.prompt-box textarea:focus{border-color:var(--teal);outline:none}
+.prompt-btn{margin-top:8px;width:100%;background:var(--ink);color:#fff;border:none;border-radius:11px;padding:11px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit}
+.prompt-note{font-size:11px;color:var(--gray);margin-top:8px;line-height:1.5}
+.etc-row{display:flex;gap:8px;margin-top:8px}
+.etc-row input{flex:1;border:1.5px solid var(--line);border-radius:11px;padding:10px 12px;font-family:inherit;font-size:12.5px;background:#fff}
+.etc-row input:focus{border-color:var(--teal);outline:none}
+.etc-row button{border:1.5px solid var(--teal);background:var(--mint);color:var(--teal);border-radius:11px;padding:0 14px;font-weight:800;font-size:12.5px;cursor:pointer;font-family:inherit}
 </style>
 </head>
 <body>
 <div class="app">
   <div class="header">
-    <svg class="logo-badge" viewBox="0 0 100 84" aria-label="공시리 로고">
-      <path d="M12 78 V32 Q12 10 34 10 H66 Q88 10 88 32 V78" fill="none" stroke="#0e6b5c" stroke-width="9" stroke-linecap="round"/>
-      <circle cx="40" cy="56" r="17" fill="none" stroke="#0e6b5c" stroke-width="7"/>
-      <path d="M40 56 m-8 0 a8 8 0 1 1 16 0 a5 5 0 1 1 -10 0" fill="none" stroke="#0e6b5c" stroke-width="6" stroke-linecap="round"/>
-      <circle cx="60" cy="43" r="5.5" fill="#0e6b5c"/>
-      <circle cx="67" cy="38" r="3" fill="#0e6b5c"/>
-    </svg>
+    <img src="logo.png" alt="공시리 로고" class="logo-badge">
     <div class="logo-txt">
       <b>공시리</b>
       <span>공실을 창업가에 잇는 플랫폼</span>
@@ -204,7 +207,7 @@ input[type=range]{width:100%;accent-color:var(--teal)}
         <p>북구 상권 활성화 사업 · 임대료 지원 등 확인하기</p>
       </div>
     </div>
-    <div class="sec-title"><h3>AI 추천 공실</h3><button onclick="showTab('map')">전첳보기 ›</button></div>
+    <div class="sec-title"><h3>AI 추천 공실</h3><button onclick="showTab('map')">전체보기 ›</button></div>
     <div id="home-cards"></div>
     <p class="footnote">본 화면의 점포 정보는 서비스 구조를 보여주기 위한 시연용 예시 데이터입니다.<br>실제 운영 시 임대인 등록과 상인회 현장 확인을 거쳐 게시됩니다.</p>
   </div>
@@ -217,13 +220,23 @@ input[type=range]{width:100%;accent-color:var(--teal)}
   <div class="screen" id="screen-match">
     <div class="sec-title" style="margin-top:8px"><h3>조건으로 공간 찾기</h3></div>
     <div class="panel" style="margin-top:0">
+      <div class="field" style="margin-bottom:0">
+        <label>🤖 AI에게 말하듯 입력</label>
+        <div class="prompt-box">
+          <textarea id="m-prompt" rows="3" placeholder="예) 주말 이틀만 소품 팝업을 열 건데, 예산은 월 70만 원 이하, 1층이고 층고가 높으면 좋겠어요"></textarea>
+          <button class="prompt-btn" onclick="parsePrompt()">AI가 조건으로 변환</button>
+        </div>
+        <div class="prompt-note" id="prompt-note">문장에서 목적·예산·기간·조건을 뽑아 아래 항목에 자동으로 채워 줘요. 변환 후 수정할 수도 있어요.</div>
+      </div>
+    </div>
+    <div class="panel">
       <div class="field">
         <label>사용 목적</label>
         <div class="opts" id="m-purpose">
           <div class="opt on" data-v="팝업스토어">🎪 팝업스토어</div>
           <div class="opt" data-v="창업">🚀 창업 공간</div>
           <div class="opt" data-v="전시행사">🖼️ 전시·행사</div>
-          <div class="opt" data-v="공방클스">🎨 공방·클스</div>
+          <div class="opt" data-v="공방클래스">🎨 공방·클래스</div>
         </div>
       </div>
       <div class="field">
@@ -247,6 +260,13 @@ input[type=range]{width:100%;accent-color:var(--teal)}
           <div class="opt" data-v="급배수">급배수</div>
           <div class="opt" data-v="화장실">화장실</div>
           <div class="opt" data-v="주차">주차 가능</div>
+          <div class="opt" data-v="층고 높음">층고 높음</div>
+          <div class="opt" data-v="채광 좋음">채광 좋음</div>
+          <div class="opt" data-v="창고 공간">창고 공간</div>
+        </div>
+        <div class="etc-row">
+          <input type="text" id="m-etc" maxlength="12" placeholder="기타 조건 직접 입력 (예: 반려동물 가능)">
+          <button onclick="addEtc()">추가</button>
         </div>
       </div>
       <button class="big-btn" onclick="runMatch()">AI 매칭 시작</button>
@@ -263,10 +283,10 @@ input[type=range]{width:100%;accent-color:var(--teal)}
       <button class="link-btn" onclick="openModal('연계 방향','공시리의 공실 현황 데이터를 북구 상권 활성화 기본계획 수립의 근거 자료로 제공하고, 시범 입점 공간을 함께 발굴합니다.')">연계 방향 보기 →</button>
     </div>
     <div class="gov-card">
-      <span class="from">국토부 · 문철부 · 중기부</span>
+      <span class="from">국토부 · 문체부 · 중기부</span>
       <h4>원도심 RE:CORE 프로젝트</h4>
       <p>공실 상가를 매입·장기임대로 확보해 청년 창업공간과 팝업스토어로 조성하고 임대료를 지원하는 사업(2027년 시범 예정)입니다. 정부가 공간을 확보하면, 공시리가 어떤 공실에 어떤 수요자를 연결할지 판단을 돕습니다.</p>
-      <button class="link-btn" onclick="openModal('연계 방향','RE:CORE로 확볼된 공간의 입점자 선정에 공시리의 업종 적합도 분석과 수요 매칭 데이터를 제공할 수 있습니다.')">연계 방향 보기 →</button>
+      <button class="link-btn" onclick="openModal('연계 방향','RE:CORE로 확보된 공간의 입점자 선정에 공시리의 업종 적합도 분석과 수요 매칭 데이터를 제공할 수 있습니다.')">연계 방향 보기 →</button>
     </div>
     <div class="gov-card">
       <span class="from">지자체 청년창업 지원 (참고 사례)</span>
@@ -308,7 +328,7 @@ input[type=range]{width:100%;accent-color:var(--teal)}
     <div class="sec-title"><h3>임대인 메뉴</h3></div>
     <div class="list-row" style="cursor:pointer" onclick="openModal('공간 등록','점포 등록이 접수되었습니다.<br>상인회 현장 확인 후 지도에 게시됩니다.<br><br>※ 시연 화면입니다.')">
       <div class="ico">🏠</div>
-      <div><b>내 공간 등록하기</b><span>사진과 최소 정볼만 입력하면 공공데이터로 자동 보완</span></div>
+      <div><b>내 공간 등록하기</b><span>사진과 최소 정보만 입력하면 공공데이터로 자동 보완</span></div>
       <div class="st">등록</div>
     </div>
   </div>
@@ -322,7 +342,7 @@ input[type=range]{width:100%;accent-color:var(--teal)}
     <div class="d-actions">
       <button class="btn ghost" onclick="openModal('관심 점포','관심 점포로 저장했습니다. ♥')">♥ 저장</button>
       <button class="btn dark" onclick="openModal('팝업 신청','단기 이용 신청이 접수되었습니다.<br>임대인이 확인 후 답변합니다.<br><br>※ 실제 계약은 당사자 간에 체결됩니다.')">팝업·단기 신청</button>
-      <button class="btn primary" onclick="openModal('입점 문의','임대인에게 문의를 본냈습니다.<br>평균 응답 시간은 2일입니다.<br><br>※ 실제 계약은 당사자 간에 체결됩니다.')">입점 문의</button>
+      <button class="btn primary" onclick="openModal('입점 문의','임대인에게 문의를 보냈습니다.<br>평균 응답 시간은 2일입니다.<br><br>※ 실제 계약은 당사자 간에 체결됩니다.')">입점 문의</button>
     </div>
   </div>
 
@@ -347,16 +367,16 @@ input[type=range]{width:100%;accent-color:var(--teal)}
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
 const STORES=[
- {id:1,name:"후문 메인거리 1층 점포",addr:"북구 용봉로 77 (전남대 후문 도보 2분)",lat:35.1812,lng:126.9031,size:"33㎡ (약 10평)",floor:"1층",deposit:"1,000만 원",rent:60,vacant:8,short:true,period:"1주~",support:true,icon:"🏪",fac:["1층","화장실","급배수"],fit:92,near:{음식점:24,카페:13,주점:8,편의점:5},traffic:[18,22,28,42,68,82,92,58,52,72,100,88,66,52,38],ai:{rec:"소품샵 · 디저트 팝업스토어",score:92,why:["반경 200m 내 카페 13곳과 보완적인 소비 동선","1층 면적 33㎡로 팝업 운영에 적정","점심(12~14시)·저녁(18~21시) 유동인구 집중"],caution:["급배수 용량이 작아 본격 음식 조리는 제한적","주말 낮 보행량은 현장 확인 권장"]}},
- {id:2,name:"용봉로 골목 1층",addr:"북구 용봉로 112-5 (후문 사거리 골목)",lat:35.1803,lng:126.9046,size:"49.5㎡ (약 15평)",floor:"1층",deposit:"2,000만 원",rent:85,vacant:14,short:true,period:"1개월~",support:true,icon:"🏬",fac:["1층","화장실","주차"],fit:81,near:{음식점:18,카페:9,주점:11,편의점:3},traffic:[15,20,25,38,60,75,85,62,58,80,95,90,75,60,45],ai:{rec:"브랜드 팝업 · 플리마켓",score:81,why:["15평 규모로 부스형 구성 가능","인근 주점 상권과 저녁 시간대 수요 연계","공실 14개월로 임대 조건 협의 여지"],caution:["골목 남측이라 자연 유입은 낮은 편","주차 1대만 가능"]}},
+ {id:1,name:"후문 메인거리 1층 점포",addr:"북구 용봉로 77 (전남대 후문 도보 2분)",lat:35.1812,lng:126.9031,size:"33㎡ (약 10평)",floor:"1층",deposit:"1,000만 원",rent:60,vacant:8,short:true,period:"1주~",support:true,icon:"🏪",fac:["1층","화장실","급배수","채광 좋음"],fit:92,near:{음식점:24,카페:13,주점:8,편의점:5},traffic:[18,22,28,42,68,82,92,58,52,72,100,88,66,52,38],ai:{rec:"소품샵 · 디저트 팝업스토어",score:92,why:["반경 200m 내 카페 13곳과 보완적인 소비 동선","1층 면적 33㎡로 팝업 운영에 적정","점심(12~14시)·저녁(18~21시) 유동인구 집중"],caution:["급배수 용량이 작아 본격 음식 조리는 제한적","주말 낮 보행량은 현장 확인 권장"]}},
+ {id:2,name:"용봉로 골목 1층",addr:"북구 용봉로 112-5 (후문 사거리 골목)",lat:35.1803,lng:126.9046,size:"49.5㎡ (약 15평)",floor:"1층",deposit:"2,000만 원",rent:85,vacant:14,short:true,period:"1개월~",support:true,icon:"🏬",fac:["1층","화장실","주차","층고 높음"],fit:81,near:{음식점:18,카페:9,주점:11,편의점:3},traffic:[15,20,25,38,60,75,85,62,58,80,95,90,75,60,45],ai:{rec:"브랜드 팝업 · 플리마켓",score:81,why:["15평 규모로 부스형 구성 가능","인근 주점 상권과 저녁 시간대 수요 연계","공실 14개월로 임대 조건 협의 여지"],caution:["골목 남측이라 자연 유입은 낮은 편","주차 1대만 가능"]}},
  {id:3,name:"후문 골목 2층",addr:"북구 용봉로 95 2층",lat:35.1798,lng:126.9027,size:"66㎡ (약 20평)",floor:"2층",deposit:"1,000만 원",rent:55,vacant:5,short:false,period:"6개월~",support:false,icon:"🎨",fac:["화장실"],fit:74,near:{음식점:20,카페:15,주점:6,편의점:4},traffic:[12,18,24,35,55,70,80,60,65,78,90,82,70,55,40],ai:{rec:"공방 · 원데이 클래스",score:74,why:["20평으로 8~10인 클래스 운영 가능","카페 밀집 지역과 체험 소비 연계","2층이라 임대료가 1층 대비 낮음"],caution:["2층 노출이 낮아 SNS 유입 필수","계단 접근성 확인 필요"]}},
- {id:4,name:"용봉택지 소형 점포",addr:"북구 용봉택지로 21",lat:35.1821,lng:126.9055,size:"26.4㎡ (약 8평)",floor:"1층",deposit:"500만 원",rent:45,vacant:3,short:true,period:"1주~",support:true,icon:"🧺",fac:["1층","급배수"],fit:85,near:{음식점:15,카페:6,주점:3,편의점:6},traffic:[25,30,35,48,72,80,85,70,60,68,82,78,65,50,35],ai:{rec:"반찬·간편식 판매, 소형 소매",score:85,why:["주거 밀집 지역으로 저녁 귀가 수요","8평 소형으로 초기 비용 부담 적음","공실 3개월로 시설 상태 양호"],caution:["유동인구 절대량은 메인거리보다 적음","화장실이 공용"]}},
- {id:5,name:"용봉로 대형 1층",addr:"북구 용봉로 130",lat:35.1791,lng:126.9052,size:"99㎡ (약 30평)",floor:"1층",deposit:"5,000만 원",rent:150,vacant:20,short:true,period:"2주~",support:true,icon:"🖼️",fac:["1층","화장실","급배수","주차"],fit:88,near:{음식점:22,카페:11,주점:9,편의점:4},traffic:[16,22,30,44,66,78,88,64,60,82,98,92,78,62,48],ai:{rec:"전시·행사, 대형 브랜드 팝업, 쇼룸",score:88,why:["30평 무주 공간으로 전시·행사 구성 자유로움","공실 20개월로 단기 임대 협의에 적극적","주차 확보로 행사 운영 편의"],caution:["보증금 규모가 커 지원사업 연계 검토 필요","방음 시설 없음"]}},
+ {id:4,name:"용봉택지 소형 점포",addr:"북구 용봉택지로 21",lat:35.1821,lng:126.9055,size:"26.4㎡ (약 8평)",floor:"1층",deposit:"500만 원",rent:45,vacant:3,short:true,period:"1주~",support:true,icon:"🧺",fac:["1층","급배수","채광 좋음"],fit:85,near:{음식점:15,카페:6,주점:3,편의점:6},traffic:[25,30,35,48,72,80,85,70,60,68,82,78,65,50,35],ai:{rec:"반찬·간편식 판매, 소형 소매",score:85,why:["주거 밀집 지역으로 저녁 귀가 수요","8평 소형으로 초기 비용 부담 적음","공실 3개월로 시설 상태 양호"],caution:["유동인구 절대량은 메인거리보다 적음","화장실이 공용"]}},
+ {id:5,name:"용봉로 대형 1층",addr:"북구 용봉로 130",lat:35.1791,lng:126.9052,size:"99㎡ (약 30평)",floor:"1층",deposit:"5,000만 원",rent:150,vacant:20,short:true,period:"2주~",support:true,icon:"🖼️",fac:["1층","화장실","급배수","주차","층고 높음","창고 공간"],fit:88,near:{음식점:22,카페:11,주점:9,편의점:4},traffic:[16,22,30,44,66,78,88,64,60,82,98,92,78,62,48],ai:{rec:"전시·행사, 대형 브랜드 팝업, 쇼룸",score:88,why:["30평 기둥 없는 공간으로 전시·행사 구성 자유로움","공실 20개월로 단기 임대 협의에 적극적","주차 확보로 행사 운영 편의"],caution:["보증금 규모가 커 지원사업 연계 검토 필요","방음 시설 없음"]}},
  {id:6,name:"후문 지하 1층",addr:"북구 용봉로 88 지하1층",lat:35.1807,lng:126.9038,size:"59.4㎡ (약 18평)",floor:"지하1층",deposit:"1,000만 원",rent:40,vacant:11,short:false,period:"3개월~",support:false,icon:"🎧",fac:["화장실"],fit:68,near:{음식점:21,카페:12,주점:10,편의점:4},traffic:[10,15,22,32,50,62,75,70,72,85,95,88,80,66,50],ai:{rec:"연습실 · 녹음실 · 동아리 공간",score:68,why:["지하는 임대료가 저렴해 학생 수요에 적합","방음 부담이 적은 용도로 활용 가능","저녁~밤 시간대 수요와 부합"],caution:["지하 특성상 습기·환기 확인 필수","소매업에는 부적합"]}},
- {id:7,name:"후문 정문 앞 1층",addr:"북구 용봉로 101",lat:35.1816,lng:126.9042,size:"39.6㎡ (약 12평)",floor:"1층",deposit:"2,000만 원",rent:70,vacant:9,short:true,period:"1개월~",support:true,icon:"🧸",fac:["1층","화장실"],fit:86,near:{음식점:19,카페:16,주점:7,편의점:5},traffic:[20,26,32,46,70,84,90,60,56,74,96,86,68,54,40],ai:{rec:"캐릭터 굿즈 · 시즌 팝업",score:86,why:["카페 16곳 밀집으로 구경 동선과 연계","12평으로 팝업+재고 공간 확보 가능","후문 정면 위치로 노출 우수"],caution:["월세가 주변 평균보다 다소 높음","간판 규격 확인 필요"]}}
+ {id:7,name:"후문 정문 앞 1층",addr:"북구 용봉로 101",lat:35.1816,lng:126.9042,size:"39.6㎡ (약 12평)",floor:"1층",deposit:"2,000만 원",rent:70,vacant:9,short:true,period:"1개월~",support:true,icon:"🧸",fac:["1층","화장실","채광 좋음"],fit:86,near:{음식점:19,카페:16,주점:7,편의점:5},traffic:[20,26,32,46,70,84,90,60,56,74,96,86,68,54,40],ai:{rec:"캐릭터 굿즈 · 시즌 팝업",score:86,why:["카페 16곳 밀집으로 구경 동선과 연계","12평으로 팝업+재고 공간 확보 가능","후문 정면 위치로 노출 우수"],caution:["월세가 주변 평균보다 다소 높음","간판 규격 확인 필요"]}}
 ];
 const HOURS=["09","10","11","12","13","14","15","16","17","18","19","20","21","22","23"];
-const FAC_ICO={"1층":"🏢","급배수":"🚰","화장실":"🚻","주차":"🅿️"};
+const FAC_ICO={"1층":"🏢","급배수":"🚰","화장실":"🚻","주차":"🅿️","층고 높음":"📏","채광 좋음":"☀️","창고 공간":"📦"};
 
 let mapObj=null,mapInit=false;
 function showTab(tab){
@@ -471,7 +491,8 @@ function runMatch(){
   const purpose=document.querySelector('#m-purpose .opt.on').dataset.v;
   const budget=+document.getElementById('m-budget').value;
   const period=document.querySelector('#m-period .opt.on').dataset.v;
-  const facs=[...document.querySelectorAll('#m-fac .opt.on')].map(o=>o.dataset.v);
+  const facs=[...document.querySelectorAll('#m-fac .opt.on')].filter(o=>!o.dataset.v.startsWith('직접:')).map(o=>o.dataset.v);
+  const customs=[...document.querySelectorAll('#m-fac .opt.custom.on')].map(o=>o.dataset.v.replace('직접:',''));
   let list=STORES.filter(s=>s.rent<=budget);
   if(period.indexOf('1주')===0||period.indexOf('1~3')===0)list=list.filter(s=>s.short);
   facs.forEach(f=>{list=list.filter(s=>s.fac.includes(f))});
@@ -480,9 +501,52 @@ function runMatch(){
   if(list.length===0){
     el.innerHTML='<div class="panel" style="text-align:center;margin-top:14px"><div style="font-size:30px">🔍</div><b>조건에 맞는 공간이 없습니다</b><p style="font-size:12px;color:var(--gray);margin-top:5px">예산이나 필수 조건을 조정해 보세요</p></div>';
   }else{
-    el.innerHTML='<div class="sec-title"><h3>매칭 결과 '+list.length+'곳</h3><button onclick="document.getElementById(\'match-results\').innerHTML=\'\'">초기화</button></div>'+list.map(s=>storeCard(s)).join('');
+    el.innerHTML='<div class="sec-title"><h3>매칭 결과 '+list.length+'곳</h3><button onclick="document.getElementById(\'match-results\').innerHTML=\'\'">초기화</button></div>'
+    +(customs.length?'<p style="font-size:11px;color:var(--gray);margin:-4px 0 10px">직접 입력 조건('+customs.join(', ')+')은 AI가 점포 상세 정보와 대조해 추천 이유에 반영해요.</p>':'')
+    +list.map(s=>storeCard(s)).join('');
   }
   el.scrollIntoView({behavior:'smooth',block:'start'});
+}
+/* ===== AI 자연어 → 조건 변환 ===== */
+function parsePrompt(){
+  const t=document.getElementById('m-prompt').value.trim();
+  const note=document.getElementById('prompt-note');
+  if(!t){note.textContent='먼저 문장을 입력해 주세요.';return}
+  let found=[];
+  const purpMap=[['팝업','팝업스토어'],['창업','창업'],['전시','전시행사'],['행사','전시행사'],['공방','공방클래스'],['클래스','공방클래스']];
+  for(const[k,v]of purpMap){if(t.includes(k)){setOpt('m-purpose',v);found.push('목적: '+v);break}}
+  const m=t.match(/(\d{2,3})\s*만\s*원/);
+  if(m){const b=Math.min(150,Math.max(30,Math.round(+m[1]/10)*10));
+    document.getElementById('m-budget').value=b;
+    document.getElementById('budget-val').textContent='월 '+b+'만 원 이하';
+    found.push('예산: 월 '+b+'만 원 이하');}
+  if(t.includes('장기')){setOpt('m-period','장기 검토');found.push('기간: 장기 검토')}
+  else if(t.match(/4개월|5개월|6개월|반년/)){setOpt('m-period','3~6개월');found.push('기간: 3~6개월')}
+  else if(t.match(/2개월|3개월|두 달|석 달/)){setOpt('m-period','1~3개월');found.push('기간: 1~3개월')}
+  else if(t.match(/1주|일주일|주말|1개월|한 달|2주/)){setOpt('m-period','1주~1개월');found.push('기간: 1주~1개월')}
+  const facMap=[['1층','1층'],['급배수','급배수'],['배수','급배수'],['화장실','화장실'],['주차','주차'],['층고','층고 높음'],['층이 높','층고 높음'],['채광','채광 좋음'],['햇빛','채광 좋음'],['창고','창고 공간']];
+  const added=new Set();
+  facMap.forEach(([k,v])=>{if(t.includes(k)&&!added.has(v)){turnOn('m-fac',v);added.add(v);found.push('조건: '+v)}});
+  note.innerHTML=found.length?'✅ 변환 완료 — '+found.join(' · '):'조건을 찾지 못했어요. 예시처럼 예산·기간·조건을 포함해 입력해 주세요.';
+}
+function setOpt(groupId,v){
+  document.querySelectorAll('#'+groupId+' .opt').forEach(o=>{o.classList.toggle('on',o.dataset.v===v)});
+}
+function turnOn(groupId,v){
+  document.querySelectorAll('#'+groupId+' .opt').forEach(o=>{if(o.dataset.v===v)o.classList.add('on')});
+}
+function addEtc(){
+  const inp=document.getElementById('m-etc');
+  const v=inp.value.trim();
+  if(!v)return;
+  const box=document.getElementById('m-fac');
+  const d=document.createElement('div');
+  d.className='opt custom on';
+  d.dataset.v='직접:'+v;
+  d.textContent=v;
+  d.addEventListener('click',()=>d.classList.toggle('on'));
+  box.appendChild(d);
+  inp.value='';
 }
 function openModal(t,m){document.getElementById('modal-title').textContent=t;document.getElementById('modal-msg').innerHTML=m;document.getElementById('modal-bg').classList.add('active')}
 function closeModal(){document.getElementById('modal-bg').classList.remove('active')}
